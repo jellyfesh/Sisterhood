@@ -1,0 +1,6 @@
+{
+  "name": "Sisterhood Abroad",
+  "description": "A community platform for immigrant women to find resources, legal aid, and connect with others in their region through an interactive map and secure forum.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": []
+}
