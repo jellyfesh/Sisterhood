@@ -7,9 +7,12 @@ import React, { useState, useRef } from 'react';
 import { Intro } from './components/Intro';
 import { AppLayout } from './components/AppLayout';
 import { WorldMap } from './components/WorldMap';
-import { Camera, CheckCircle2, User } from 'lucide-react';
+import { Camera, CheckCircle2, User, Users } from 'lucide-react';
+import { useLanguage } from './contexts/LanguageContext';
+import { cn } from './lib/utils';
 
 export default function App() {
+  const { t } = useLanguage();
   const [showIntro, setShowIntro] = useState(true);
   const [activeTab, setActiveTab] = useState('map');
   const [isSaving, setIsSaving] = useState(false);
@@ -21,6 +24,15 @@ export default function App() {
     interests: ['Reading', 'Hiking', 'Cooking', 'Art'],
     avatar: ''
   });
+  const [joinedGroups, setJoinedGroups] = useState<string[]>([]);
+
+  const toggleGroup = (groupId: string) => {
+    setJoinedGroups(prev => 
+      prev.includes(groupId) 
+        ? prev.filter(id => id !== groupId) 
+        : [...prev, groupId]
+    );
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -36,30 +48,75 @@ export default function App() {
     <AppLayout activeTab={activeTab} onTabChange={setActiveTab}>
       {activeTab === 'map' && <WorldMap />}
       {activeTab === 'forum' && (
-        <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
-            <h2 className="text-4xl font-display text-[#5A5A40]">Community Forum</h2>
-            <p className="font-hand text-xl text-[#8E9299]">Share your story, ask for advice, or just say hello.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mt-8">
-                {['Legal Aid', 'Housing', 'Job Search', 'Language Exchange'].map(topic => (
-                    <div key={topic} className="p-8 bg-[#FDFBF7] rough-border paper-shadow hover:bg-[#FFB7B2] transition-colors cursor-pointer">
-                        <h3 className="text-2xl font-display">{topic}</h3>
-                        <p className="font-hand text-sm opacity-70">12 new discussions today</p>
-                    </div>
-                ))}
+        <div className="flex flex-col h-full gap-8 py-8 w-full max-w-4xl mx-auto px-4 overflow-y-auto">
+            <div className="text-center">
+                <h2 className="text-4xl font-display text-[#5A5A40]">{t('forum.title')}</h2>
+                <p className="font-hand text-xl text-[#8E9299]">{t('forum.subtitle')}</p>
+            </div>
+
+            <div className="space-y-4">
+                <h3 className="text-2xl font-display text-[#5A5A40] border-b-2 border-[#D1D1D1] pb-2">
+                    {t('forum.groups.title')}
+                </h3>
+                <p className="font-hand text-lg text-[#8E9299]">
+                    {t('forum.groups.subtitle')}
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {(t('forum.groups.list') as any[]).map(group => {
+                        const isJoined = joinedGroups.includes(group.id);
+                        return (
+                            <div key={group.id} className="p-6 bg-white rough-border paper-shadow flex flex-col justify-between gap-4">
+                                <div className="space-y-2">
+                                    <h4 className="text-xl font-display text-[#5A5A40]">{group.title}</h4>
+                                    <p className="font-hand text-base text-[#8E9299] line-clamp-2">{group.description}</p>
+                                    <div className="flex items-center gap-2 text-xs font-hand text-[#FFB7B2]">
+                                        <Users size={14} />
+                                        <span>{isJoined ? 43 : 42} {t('forum.groups.members')}</span>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={() => toggleGroup(group.id)}
+                                    className={cn(
+                                        "w-full py-2 rounded-full font-display text-lg transition-all paper-shadow border-2",
+                                        isJoined 
+                                            ? "bg-white border-[#B5EAD7] text-[#5A5A40] hover:bg-red-50 hover:border-red-200 hover:text-red-500"
+                                            : "bg-[#FFB7B2] border-transparent text-white hover:scale-105"
+                                    )}
+                                >
+                                    {isJoined ? t('forum.groups.leave') : t('forum.groups.join')}
+                                </button>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
+            <div className="space-y-4">
+                <h3 className="text-2xl font-display text-[#5A5A40] border-b-2 border-[#D1D1D1] pb-2">
+                    {t('forum.topics_title')}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                      { title: t('forum.topics.legal'), tag: 'legal' },
+                      { title: t('forum.topics.housing'), tag: 'housing' },
+                      { title: t('forum.topics.jobs'), tag: 'jobs' },
+                      { title: t('forum.topics.language'), tag: 'language' }
+                    ].map(topic => (
+                        <div key={topic.tag} className="p-8 bg-white rough-border paper-shadow hover:bg-[#FFDAC1] transition-colors cursor-pointer group">
+                            <h3 className="text-2xl font-display text-[#5A5A40] group-hover:scale-105 transition-transform">{topic.title}</h3>
+                            <p className="font-hand text-sm opacity-60">12 {t('forum.discussions')}</p>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
       )}
       {activeTab === 'resources' && (
         <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
-            <h2 className="text-4xl font-display text-[#5A5A40]">Resources</h2>
-            <p className="font-hand text-xl text-[#8E9299]">Everything you need to navigate your new home.</p>
+            <h2 className="text-4xl font-display text-[#5A5A40]">{t('resources.title')}</h2>
+            <p className="font-hand text-xl text-[#8E9299]">{t('resources.subtitle')}</p>
             <div className="w-full space-y-4 text-left mt-8">
-                {[
-                    { title: "Legal Rights for New Arrivals", cat: "Legal" },
-                    { title: "Local Job Boards & Skill Training", cat: "Jobs" },
-                    { title: "Emergency Healthcare Contacts", cat: "Health" },
-                    { title: "Budget Friendly Grocery Guide", cat: "Lifestyle" }
-                ].map((res, i) => (
+                {(t('resources.items') as any[]).map((res, i) => (
                     <div key={i} className="flex justify-between items-center p-4 border-b-2 border-[#D1D1D1] hover:bg-[#FDFBF7] transition-colors cursor-pointer group">
                         <div>
                             <span className="text-xs uppercase font-bold text-[#FFB7B2]">{res.cat}</span>
@@ -114,13 +171,13 @@ export default function App() {
             </div>
 
             <div className="flex flex-col items-center">
-                <h2 className="text-4xl font-display text-[#5A5A40]">My Profile</h2>
-                <p className="font-hand text-[#8E9299]">Show the sisterhood who you are</p>
+                <h2 className="text-4xl font-display text-[#5A5A40]">{t('profile.title')}</h2>
+                <p className="font-hand text-[#8E9299]">{t('profile.subtitle')}</p>
             </div>
 
             <div className="space-y-4 w-full max-w-md">
                 <div className="flex flex-col items-start gap-1">
-                    <label className="font-hand text-sm text-[#5A5A40]">Preferred Name</label>
+                    <label className="font-hand text-sm text-[#5A5A40]">{t('profile.labels.name')}</label>
                     <input 
                         className="w-full p-3 bg-[#FDFBF7] border-2 border-[#D1D1D1] rough-border font-hand text-lg focus:outline-none focus:border-[#FFB7B2]" 
                         value={profile.name}
@@ -128,7 +185,7 @@ export default function App() {
                     />
                 </div>
                 <div className="flex flex-col items-start gap-1">
-                    <label className="font-hand text-sm text-[#5A5A40]">Bio</label>
+                    <label className="font-hand text-sm text-[#5A5A40]">{t('profile.labels.bio')}</label>
                     <textarea 
                         className="w-full p-3 bg-[#FDFBF7] border-2 border-[#D1D1D1] rough-border h-24 font-hand text-lg focus:outline-none focus:border-[#FFB7B2]" 
                         value={profile.bio}
@@ -136,20 +193,20 @@ export default function App() {
                     />
                 </div>
                 <div className="flex flex-col items-start gap-1">
-                    <label className="font-hand text-sm text-[#5A5A40]">Interests</label>
+                    <label className="font-hand text-sm text-[#5A5A40]">{t('profile.labels.interests')}</label>
                     <div className="flex flex-wrap gap-2 py-2">
-                        {['Reading', 'Hiking', 'Cooking', 'Art', 'Travel', 'Music'].map(tag => {
+                        {(t('profile.tags') as string[]).map(tag => {
                             const isSelected = profile.interests.includes(tag);
                             return (
                                 <button 
                                     key={tag} 
                                     onClick={() => {
-                                        setProfile(prev => ({
-                                            ...prev,
-                                            interests: isSelected 
+                                        setProfile(prev => {
+                                            const updatedInterests = isSelected 
                                                 ? prev.interests.filter(t => t !== tag)
-                                                : [...prev.interests, tag]
-                                        }));
+                                                : [...prev.interests, tag];
+                                            return { ...prev, interests: updatedInterests };
+                                        });
                                     }}
                                     className={`px-4 py-1 rough-border text-sm font-hand transition-all ${
                                         isSelected ? 'bg-[#FFB7B2] paper-shadow -translate-y-0.5' : 'bg-[#B5EAD7] opacity-60 hover:opacity-100'
@@ -182,15 +239,15 @@ export default function App() {
                     {isSaving ? (
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 border-2 border-[#5A5A40]/30 border-t-[#5A5A40] rounded-full animate-spin" />
-                            <span>Saving...</span>
+                            <span>{t('profile.saving')}</span>
                         </div>
-                    ) : 'Save Changes'}
+                    ) : t('profile.save')}
                 </button>
                 
                 {showSuccess && (
                      <div className="flex items-center gap-2 text-green-600 font-hand text-lg">
                          <CheckCircle2 size={20} />
-                         <span>Profile updated successfully!</span>
+                         <span>{t('profile.success')}</span>
                      </div>
                 )}
             </div>

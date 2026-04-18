@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { feature } from 'topojson-client';
 import { motion, AnimatePresence } from 'motion/react';
+import { useLanguage } from '../contexts/LanguageContext';
 import { X } from 'lucide-react';
 import { PaperCutout } from './PaperCutout';
 import { SwipeProfiles } from './SwipeProfiles';
@@ -21,6 +22,7 @@ const CITIES = [
 ];
 
 export const WorldMap: React.FC = () => {
+  const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -36,7 +38,7 @@ export const WorldMap: React.FC = () => {
     "On average, women pay 13% more for personal care products than men for nearly identical items.",
     "In a lifetime, an average woman may pay over $40,000 extra due to gender-based price discrimination.",
     "Some states are now passing laws to ban gender-based pricing on services like dry cleaning and haircuts.",
-    "The gap is often most visible in children's toys—girls' toys can cost 7% more than matching boys' toys."
+    "The pink tax gap is often most visible in children's toys—girls' toys can cost 7% more than matching boys' toys."
   ];
 
   const [factIndex] = useState(() => Math.floor(Math.random() * PINK_TAX_FACTS.length));
@@ -196,18 +198,18 @@ export const WorldMap: React.FC = () => {
 
     if (isSwiping && selectedCity) {
         return (
-            <div className="h-[100dvh] flex flex-col p-6 md:p-8 bg-[#FDFBF7] overflow-hidden">
-                <div className="flex items-center justify-between mb-4">
+            <div className="h-[100dvh] flex flex-col bg-[#FDFBF7] overflow-y-auto">
+                <div className="flex items-center justify-between p-4 md:p-8 flex-shrink-0">
                     <button 
                         onClick={() => setIsSwiping(false)}
                         className="text-[#5A5A40] font-display flex items-center gap-2 text-xl hover:translate-x-[-4px] transition-transform"
                     >
-                        ← Back to Map
+                        ← {t('map.back')}
                     </button>
-                    <h2 className="text-2xl md:text-3xl font-display text-[#5A5A40]">Women in {selectedCity.name}</h2>
+                    <h2 className="text-xl md:text-3xl font-display text-[#5A5A40] truncate ml-4">{t('map.sisters_in')} {selectedCity.name}</h2>
                 </div>
                 
-                <div className="flex-1 flex items-center justify-center">
+                <div className="flex-1 flex items-center justify-center px-4 py-8">
                     <div className="w-full max-w-sm">
                         <SwipeProfiles cityName={selectedCity.name} />
                     </div>
@@ -237,7 +239,7 @@ export const WorldMap: React.FC = () => {
                     
                     <div className="space-y-6">
                         <div className="space-y-2">
-                            <p className="font-hand text-2xl text-[#5A5A40] animate-pulse">Tracing the global map...</p>
+                            <p className="font-hand text-2xl text-[#5A5A40] animate-pulse">{t('map.loading')}</p>
                             <div className="w-64 h-2 bg-[#FFB7B2]/20 rounded-full mx-auto overflow-hidden">
                                 <motion.div 
                                     className="h-full bg-[#FFB7B2]"
@@ -249,7 +251,7 @@ export const WorldMap: React.FC = () => {
 
                         <PaperCutout color="bg-white" className="p-6">
                             <div className="space-y-3">
-                                <h4 className="font-display text-xl text-[#FFB7B2] uppercase tracking-wider">Did you know?</h4>
+                                <h4 className="font-display text-xl text-[#FFB7B2] uppercase tracking-wider">{t('map.did_you_know')}</h4>
                                 <p className="font-hand text-lg text-[#5A5A40] leading-relaxed italic">
                                     "{PINK_TAX_FACTS[factIndex]}"
                                 </p>
@@ -273,11 +275,11 @@ export const WorldMap: React.FC = () => {
                     >
                         <div className="relative">
                             <PaperCutout color="bg-white" className="p-6 max-w-xs">
-                                <h2 className="text-3xl font-display text-[#5A5A40] leading-tight mb-2 pr-6">Explore the Sisterhood</h2>
-                                <p className="font-hand text-lg text-[#8E9299]">Click a city to meet women in that region. Every dot is a story.</p>
+                                <h2 className="text-3xl font-display text-[#5A5A40] leading-tight mb-2 pr-6">{t('map.explore')}</h2>
+                                <p className="font-hand text-lg text-[#8E9299]">{t('map.explore_subtitle')}</p>
                                 <div className="mt-4 flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full bg-[#FF8C94]" />
-                                    <span className="text-xs font-hand text-[#5A5A40]">Communities found</span>
+                                    <span className="text-xs font-hand text-[#5A5A40]">{t('map.communities_found')}</span>
                                 </div>
                             </PaperCutout>
                             <button 
@@ -310,12 +312,12 @@ export const WorldMap: React.FC = () => {
                   <div className="relative">
                       <PaperCutout color="bg-[#FFDAC1]" className="w-64 p-6">
                           <h3 className="text-2xl font-display text-[#5A5A40]">{selectedCity.name}</h3>
-                          <p className="font-hand text-xl text-[#8E9299]">{selectedCity.count} friendly sisters</p>
+                          <p className="font-hand text-xl text-[#8E9299]">{selectedCity.count} {t('map.friendly_sisters')}</p>
                           <button 
                             className="w-full mt-4 py-3 bg-[#FFB7B2] rounded-full font-display text-white paper-shadow hover:translate-y-[-2px] transition-transform"
                             onClick={() => setIsSwiping(true)}
                           >
-                              Meet Them!
+                              {t('map.meet_them')}
                           </button>
                       </PaperCutout>
                       <button 
@@ -334,7 +336,7 @@ export const WorldMap: React.FC = () => {
 
         {/* Zoom Level Indicator (Bottom Left) */}
         <div className="absolute bottom-8 left-8 bg-black/5 backdrop-blur-sm px-4 py-2 rounded-full font-hand text-sm text-[#5A5A40] border border-black/5 z-20">
-            Scroll to zoom • {zoomLevel.toFixed(1)}x
+            {t('map.scroll_to_zoom')} • {zoomLevel.toFixed(1)}x
         </div>
       </div>
     );

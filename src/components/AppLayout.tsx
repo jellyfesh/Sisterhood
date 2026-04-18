@@ -2,6 +2,8 @@ import React from 'react';
 import { PaperCutout } from './PaperCutout';
 import { cn } from '../lib/utils';
 import { Globe, Users, MessageSquare, BookOpen, User } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { Language } from '../i18n/translations';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,13 +12,13 @@ interface LayoutProps {
 }
 
 export const AppLayout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange }) => {
-  const [currentLang, setCurrentLang] = React.useState('EN');
+  const { language, setLanguage, t } = useLanguage();
 
   const tabs = [
-    { id: 'map', icon: Globe, label: 'World Map' },
-    { id: 'forum', icon: MessageSquare, label: 'Forum' },
-    { id: 'resources', icon: BookOpen, label: 'Resources' },
-    { id: 'profile', icon: User, label: 'My Profile' },
+    { id: 'map', icon: Globe, label: t('tabs.map') },
+    { id: 'forum', icon: MessageSquare, label: t('tabs.forum') },
+    { id: 'resources', icon: BookOpen, label: t('tabs.resources') },
+    { id: 'profile', icon: User, label: t('tabs.profile') },
   ];
 
   const isMap = activeTab === 'map';
@@ -28,23 +30,23 @@ export const AppLayout: React.FC<LayoutProps> = ({ children, activeTab, onTabCha
     )}>
       {/* Header */}
       <div className={cn(
-          "w-full transition-all duration-500 z-50",
-          isMap ? "fixed top-6 left-6 right-6 flex justify-between items-start pointer-events-none" : "max-w-6xl flex justify-between items-center"
+          "transition-all duration-500 z-50",
+          isMap ? "fixed top-6 left-8 right-8 md:left-12 md:right-12 flex justify-between items-start pointer-events-none" : "w-full max-w-6xl flex justify-between items-center"
       )}>
         <h1 className={cn(
             "font-display text-[#5A5A40] transition-all",
             isMap ? "text-2xl bg-white/80 backdrop-blur-sm p-4 rough-border paper-shadow pointer-events-auto" : "text-3xl"
         )}>
-            Sisterhood Abroad
+            {t('title')}
         </h1>
-        <div className={cn("flex gap-2 pointer-events-auto mr-4 md:mr-0", isMap && "bg-white/80 backdrop-blur-sm p-2 rough-border paper-shadow")}>
-            {['EN', 'ES', 'FR'].map((lang) => (
+        <div className={cn("flex gap-2 pointer-events-auto", isMap && "bg-white/80 backdrop-blur-sm p-2 rough-border paper-shadow mr-4")}>
+            {(['EN', 'ES', 'FR'] as Language[]).map((lang) => (
                 <button 
                   key={lang}
-                  onClick={() => setCurrentLang(lang)}
+                  onClick={() => setLanguage(lang)}
                   className={cn(
                     "px-3 py-1 rough-border paper-shadow font-hand transition-all text-sm",
-                    currentLang === lang 
+                    language === lang 
                       ? "bg-[#FFB7B2] text-white -translate-y-0.5" 
                       : "bg-white hover:bg-gray-50 text-[#5A5A40]"
                   )}

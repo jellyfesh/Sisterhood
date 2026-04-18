@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { PaperCutout } from './PaperCutout';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const PAPER_COLORS = [
     'bg-[#FFB7B2]', // Pink
@@ -21,6 +22,7 @@ interface IntroProps {
 }
 
 export const Intro: React.FC<IntroProps> = ({ onBegin }) => {
+  const { t } = useLanguage();
   const [stage, setStage] = useState<'earth' | 'connection' | 'button'>('earth');
   const [handsJoined, setHandsJoined] = useState(false);
   const [textPhase, setTextPhase] = useState<'forward' | 'community'>('forward');
@@ -72,7 +74,7 @@ export const Intro: React.FC<IntroProps> = ({ onBegin }) => {
                   transition={{ duration: 0.8 }}
                   className="text-xl md:text-3xl font-hand text-[#8E9299] mt-4 italic"
                 >
-                  "No matter what, <span className="text-[#FFB7B2] font-bold">WE</span> must move forward."
+                  <span dangerouslySetInnerHTML={{ __html: t('intro.quote1') }} />
                 </motion.p>
               ) : (
                 <motion.p 
@@ -83,8 +85,8 @@ export const Intro: React.FC<IntroProps> = ({ onBegin }) => {
                   transition={{ duration: 0.8 }}
                   className="text-xl md:text-3xl font-hand text-[#5A5A40] mt-4"
                 >
-                  Find your community. <br />
-                  <span className="text-[#B5EAD7] font-bold">Find your strength.</span>
+                  {t('intro.quote2')} <br />
+                  <span className="text-[#B5EAD7] font-bold">{t('intro.quote3')}</span>
                 </motion.p>
               )}
             </AnimatePresence>
@@ -102,15 +104,16 @@ export const Intro: React.FC<IntroProps> = ({ onBegin }) => {
                   onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}
                   onClick={() => {
+                    // Trigger geolocation asynchronously so we don't block the UI transition
                     if ("geolocation" in navigator) {
-                      navigator.geolocation.getCurrentPosition(() => onBegin(), () => onBegin());
-                    } else {
-                      onBegin();
+                      navigator.geolocation.getCurrentPosition(() => {}, () => {});
                     }
+                    // Transition to the map/loading screen immediately
+                    onBegin();
                   }}
-                  className="px-12 py-5 bg-[#FFB7B2] rounded-full text-2xl font-display paper-shadow text-[#4A4A4A] cursor-pointer"
+                  className="px-12 py-5 bg-[#FFB7B2] rounded-full text-2xl font-display paper-shadow text-[#4A4A40] cursor-pointer"
                 >
-                  Begin Journey
+                  {t('intro.begin')}
                 </motion.button>
               )}
             </AnimatePresence>

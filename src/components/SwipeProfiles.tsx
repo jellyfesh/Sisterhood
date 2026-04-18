@@ -3,6 +3,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from 'motion/re
 import { cn } from '../lib/utils';
 import { Heart, X, MessageCircle, Send, ArrowLeft } from 'lucide-react';
 import { PaperCutout } from './PaperCutout';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface Message {
   id: number;
@@ -30,6 +31,7 @@ const MOCK_USERS: UserProfile[] = [
 ];
 
 export const SwipeProfiles: React.FC<{ cityName: string }> = ({ cityName }) => {
+  const { t } = useLanguage();
   const [users, setUsers] = useState(MOCK_USERS);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isChatting, setIsChatting] = useState(false);
@@ -65,13 +67,13 @@ export const SwipeProfiles: React.FC<{ cityName: string }> = ({ cityName }) => {
   if (!currentUser) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center h-[500px]">
-        <h3 className="text-3xl font-display mb-4">You've reached the end!</h3>
-        <p className="font-hand text-xl text-[#8E9299]">Check back later for more sisters in {cityName}.</p>
+        <h3 className="text-3xl font-display mb-4">{t('swipe.end_reached')}</h3>
+        <p className="font-hand text-xl text-[#8E9299]">{t('swipe.check_later')} {cityName}.</p>
         <button 
           onClick={() => setCurrentIndex(0)}
           className="mt-8 px-8 py-3 bg-[#B5EAD7] rounded-full font-display paper-shadow"
         >
-          See again
+          {t('swipe.see_again')}
         </button>
       </div>
     );
@@ -90,7 +92,7 @@ export const SwipeProfiles: React.FC<{ cityName: string }> = ({ cityName }) => {
           </button>
           <div className="flex flex-col items-center">
             <span className="font-display text-xl text-[#5A5A40]">{currentUser.name}</span>
-            <span className="text-[10px] font-hand text-green-500 uppercase tracking-widest">Online</span>
+            <span className="text-[10px] font-hand text-green-500 uppercase tracking-widest">{t('swipe.online')}</span>
           </div>
           <div className="relative w-10 h-10 rounded-full overflow-hidden paper-shadow border-2 border-white">
             <div className={cn("w-full h-full", currentUser.color)} />
@@ -102,7 +104,7 @@ export const SwipeProfiles: React.FC<{ cityName: string }> = ({ cityName }) => {
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center opacity-40">
                 <MessageCircle size={48} className="mb-2" />
-                <p className="font-hand text-lg">Send a message to start the conversation!</p>
+                <p className="font-hand text-lg">{t('swipe.start_convo')}</p>
             </div>
           ) : (
             messages.map(msg => (
@@ -132,7 +134,7 @@ export const SwipeProfiles: React.FC<{ cityName: string }> = ({ cityName }) => {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="Write a message..."
+            placeholder={t('swipe.send_placeholder')}
             className="flex-1 p-3 bg-[#FDFBF7] rough-border font-hand text-lg focus:outline-none focus:border-[#FFB7B2]"
           />
           <button 
@@ -147,7 +149,7 @@ export const SwipeProfiles: React.FC<{ cityName: string }> = ({ cityName }) => {
   }
 
   return (
-    <div className="relative w-full max-w-sm mx-auto h-[550px] md:h-[600px] flex flex-col items-center">
+    <div className="relative w-full max-w-sm mx-auto h-[440px] md:h-[500px] flex flex-col items-center">
       <AnimatePresence>
         <motion.div
           key={currentUser.id}
@@ -158,68 +160,56 @@ export const SwipeProfiles: React.FC<{ cityName: string }> = ({ cityName }) => {
             if (info.offset.x > 100) handleSwipe('right');
             else if (info.offset.x < -100) handleSwipe('left');
           }}
-          className="absolute w-full"
+          className="absolute w-full px-4"
         >
           <PaperCutout color="bg-white" className="w-full cursor-grab active:cursor-grabbing">
-            <div className="flex flex-col items-center gap-6 py-4">
+            <div className="flex flex-col items-center gap-2 pt-4 pb-12 px-4">
               {/* Profile Avatar */}
               <div 
-                className={cn("w-40 h-40 paper-shadow border-4 border-white flex items-center justify-center overflow-hidden", currentUser.color)}
+                className={cn("w-24 h-24 md:w-40 md:h-40 paper-shadow border-4 border-white flex items-center justify-center overflow-hidden", currentUser.color)}
                 style={{ clipPath: 'polygon(10% 0, 95% 5%, 100% 40%, 85% 90%, 15% 100%, 0 50%)' }}
               >
                  <div 
-                    className={cn("w-24 h-24 rounded-full", currentUser.color)} 
+                    className={cn("w-14 h-14 md:w-24 md:h-24 rounded-full", currentUser.color)} 
                  />
               </div>
-
+ 
               {/* Info */}
-              <div className="text-center space-y-2">
-                <h3 className="text-4xl font-display">{currentUser.name}, {currentUser.age}</h3>
-                <p className="text-xl font-hand text-[#FFB7B2] font-bold">From {currentUser.origin}</p>
-                <div className="w-12 h-1 bg-[#D1D1D1] mx-auto my-4" />
-                <p className="font-hand text-lg leading-relaxed text-[#4A4A4A]">
+              <div className="text-center space-y-1">
+                <h3 className="text-xl md:text-4xl font-display">{currentUser.name}, {currentUser.age}</h3>
+                <p className="text-base md:text-xl font-hand text-[#FFB7B2] font-bold">{t('swipe.from')} {currentUser.origin}</p>
+                <div className="w-8 h-1 bg-[#D1D1D1] mx-auto my-2" />
+                <p className="font-hand text-sm md:text-lg leading-relaxed text-[#4A4A40] line-clamp-2 md:line-clamp-3">
                   "{currentUser.bio}"
                 </p>
-              </div>
-
-              {/* Swipe Hints */}
-              <div className="flex justify-between w-full px-4 mt-8">
-                 <div className="flex flex-col items-center text-red-300 opacity-50">
-                    <X size={40} />
-                    <span className="font-hand text-xs">Swipe Left</span>
-                 </div>
-                 <div className="flex flex-col items-center text-green-300 opacity-50">
-                    <Heart size={40} />
-                    <span className="font-hand text-xs">Swipe Right</span>
-                 </div>
               </div>
             </div>
           </PaperCutout>
         </motion.div>
       </AnimatePresence>
-
-      {/* Action Buttons */}
-      <div className="absolute bottom-4 flex gap-8">
+ 
+      {/* Action Buttons - Pin to specific bottom area */}
+      <div className="absolute bottom-0 flex gap-6 md:gap-8 p-3">
           <button 
             onClick={() => handleSwipe('left')}
-            className="w-16 h-16 bg-white rounded-full paper-shadow flex items-center justify-center text-red-500 hover:scale-110 active:scale-90 transition-all rough-border"
+            className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-full paper-shadow flex items-center justify-center text-red-500 hover:scale-110 active:scale-90 transition-all rough-border border-2 border-red-50"
           >
-            <X size={32} />
+            <X size={24} className="md:size-32" />
           </button>
           <button 
             onClick={() => {
                 setMessages([]);
                 setIsChatting(true);
             }}
-            className="w-16 h-16 bg-white rounded-full paper-shadow flex items-center justify-center text-blue-500 hover:scale-110 active:scale-90 transition-all rough-border"
+            className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-full paper-shadow flex items-center justify-center text-blue-500 hover:scale-110 active:scale-90 transition-all rough-border border-2 border-blue-50"
           >
-            <MessageCircle size={32} />
+            <MessageCircle size={24} className="md:size-32" />
           </button>
           <button 
             onClick={() => handleSwipe('right')}
-            className="w-16 h-16 bg-white rounded-full paper-shadow flex items-center justify-center text-green-500 hover:scale-110 active:scale-90 transition-all rough-border"
+            className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-full paper-shadow flex items-center justify-center text-green-500 hover:scale-110 active:scale-90 transition-all rough-border border-2 border-green-50"
           >
-            <Heart size={32} />
+            <Heart size={24} className="md:size-32" />
           </button>
       </div>
     </div>
